@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build
-        run: SQLX_OFFLINE=1 cargo buildcargo build --verbose
+        run: SQLX_OFFLINE=1 cargo build --verbose
 
   test:
     runs-on: ubuntu-latest
