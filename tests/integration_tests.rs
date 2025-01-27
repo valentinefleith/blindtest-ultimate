@@ -1,7 +1,7 @@
 use axum::extract::Extension;
 use blindtest::routes::create_router;
 use reqwest::Client;
-use sqlx::{sqlite::SqlitePoolOptions, SqlitePool};
+use sqlx::sqlite::SqlitePoolOptions;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::net::TcpListener;

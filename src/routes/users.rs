@@ -1,5 +1,7 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
+use crate::db::users::insert_user;
+use crate::models::user::User;
 use axum::{routing::post, Extension, Json, Router};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
@@ -21,18 +23,10 @@ async fn register(
     Extension(pool): Extension<Arc<SqlitePool>>,
     Json(payload): Json<RegisterUser>,
 ) -> Result<Json<UserResponse>, String> {
-    let result = sqlx::query!(
-        "INSERT INTO users (username, password) VALUES (?, ?) RETURNING id",
-        payload.username,
-        payload.password
-    )
-    .fetch_one(&*pool)
-    .await;
-
-    match result {
-        Ok(record) => Ok(Json(UserResponse {
-            id: record.id as u32,
-            username: payload.username,
+    match insert_user(&pool, &payload.username, &payload.password).await {
+        Ok(user) => Ok(Json(UserResponse {
+            id: user.id as u32,
+            username: user.username,
         })),
         Err(_) => Err("Failed to create user".to_string()),
     }
