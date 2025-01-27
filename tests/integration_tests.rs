@@ -1,4 +1,3 @@
-use axum::Router;
 use blindtest::routes::create_router;
 use reqwest::Client;
 use std::net::SocketAddr;
