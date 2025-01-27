@@ -1,7 +1,9 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
-use axum::{routing::post, Json, Router};
+use axum::{routing::post, Extension, Json, Router};
 use serde::{Deserialize, Serialize};
+use sqlx::SqlitePool;
+use std::sync::Arc;
 
 #[derive(Deserialize)]
 struct RegisterUser {
@@ -15,14 +17,25 @@ struct UserResponse {
     username: String,
 }
 
-async fn register(Json(payload): Json<RegisterUser>) -> Json<UserResponse> {
-    // Simule un utilisateur enregistré avec un ID 1
-    let user = UserResponse {
-        id: 1,
-        username: payload.username,
-    };
+async fn register(
+    Extension(pool): Extension<Arc<SqlitePool>>,
+    Json(payload): Json<RegisterUser>,
+) -> Result<Json<UserResponse>, String> {
+    let result = sqlx::query!(
+        "INSERT INTO users (username, password) VALUES (?, ?) RETURNING id",
+        payload.username,
+        payload.password
+    )
+    .fetch_one(&*pool)
+    .await;
 
-    Json(user) // Retourne l'utilisateur en JSON
+    match result {
+        Ok(record) => Ok(Json(UserResponse {
+            id: record.id as u32,
+            username: payload.username,
+        })),
+        Err(_) => Err("Failed to create user".to_string()),
+    }
 }
 
 // Fonction pour enregistrer les routes utilisateurs
