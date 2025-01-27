@@ -45,27 +45,39 @@ pub fn routes() -> Router {
 
 #[cfg(test)]
 mod tests {
-    use super::*; // Permet d'accéder aux structs privées du module
-    use axum::Json;
+    use super::*; // Accède aux fonctions et structures privées du module
+    use axum::{extract::Extension, Json};
+    use sqlx::{sqlite::SqlitePoolOptions, SqlitePool};
+    use std::sync::Arc;
+    use tokio;
 
-    #[test]
-    fn test_user_creation() {
-        let input = RegisterUser {
+    #[tokio::test]
+    async fn test_user_creation() {
+        // Crée une base de données temporaire en mémoire
+        let pool = SqlitePoolOptions::new()
+            .connect("sqlite::memory:")
+            .await
+            .expect("Failed to connect to database");
+
+        // Exécute la migration pour créer la table `users`
+        sqlx::migrate!().run(&pool).await.expect("Migration failed");
+
+        let test_user = RegisterUser {
             username: "testuser".to_string(),
-            password: "1234".to_string(),
+            password: "securepassword".to_string(),
         };
 
-        let expected = UserResponse {
-            id: 1,
-            username: "testuser".to_string(),
-        };
+        let response = register(Extension(Arc::new(pool.clone())), Json(test_user)).await;
 
-        let result = UserResponse {
-            id: 1,
-            username: input.username,
-        };
+        assert!(response.is_ok());
+        let user_response = response.unwrap().0; // .0 pour extraire Json<UserResponse>
+        assert_eq!(user_response.username, "testuser");
 
-        assert_eq!(result.id, expected.id);
-        assert_eq!(result.username, expected.username);
+        let user_in_db = sqlx::query!("SELECT username FROM users WHERE id = ?", user_response.id)
+            .fetch_one(&pool)
+            .await
+            .expect("User not found in database");
+
+        assert_eq!(user_in_db.username, "testuser");
     }
 }

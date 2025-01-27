@@ -1,14 +1,18 @@
 use axum::Extension;
-use sqlx::SqlitePool;
+use dotenv::dotenv;
+use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 
+mod config;
 mod routes;
 
 #[tokio::main]
 async fn main() {
-    let pool = SqlitePool::connect("sqlite://blindtest.db").await.unwrap();
+    dotenv().ok();
+    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
+    let pool = config::init_db(&db_url).await;
     let shared_pool = Arc::new(pool);
     let app = routes::create_router().layer(Extension(shared_pool));
 

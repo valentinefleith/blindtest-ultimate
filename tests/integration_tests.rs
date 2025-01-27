@@ -1,15 +1,26 @@
+use axum::extract::Extension;
 use blindtest::routes::create_router;
 use reqwest::Client;
+use sqlx::{sqlite::SqlitePoolOptions, SqlitePool};
 use std::net::SocketAddr;
+use std::sync::Arc;
 use tokio::net::TcpListener;
 
 async fn spawn_server() -> String {
-    let router = create_router();
+    let pool = SqlitePoolOptions::new()
+        .connect("sqlite::memory:")
+        .await
+        .expect("Failed to connect to database");
+
+    // Exécute la migration pour créer la table `users`
+    sqlx::migrate!().run(&pool).await.expect("Migration failed");
+
+    let app = create_router().layer(Extension(Arc::new(pool)));
     let addr = SocketAddr::from(([127, 0, 0, 1], 0)); // Port aléatoire
     let listener = TcpListener::bind(addr).await.unwrap();
     let port = listener.local_addr().unwrap().port();
     tokio::spawn(async move {
-        axum::serve(listener, router).await.unwrap();
+        axum::serve(listener, app).await.unwrap();
     });
 
     format!("http://127.0.0.1:{}", port)
