@@ -41,7 +41,7 @@ lint: $(VENV)
 
 test: $(VENV)
 	@echo "$(CYAN)Running tests with pytest...$(RESET)"
-	$(PYTEST) $(TESTS_DIR) --maxfail=1 --disable-warnings
+	$(PYTEST) $(TESTS_DIR) --maxfail=1
 
 check: format lint test
 	@echo "$(GREEN)✅ Code is ready to commit!$(RESET)"

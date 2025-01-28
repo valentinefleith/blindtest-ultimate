@@ -1,8 +1,10 @@
 annotated-types==0.7.0
 anyio==4.8.0
+bcrypt==4.0.1
 black==24.10.0
 certifi==2024.12.14
 click==8.1.8
+colorama==0.4.6
 dnspython==2.7.0
 email_validator==2.2.0
 fastapi==0.115.7
@@ -14,9 +16,11 @@ idna==3.10
 iniconfig==2.0.0
 mypy-extensions==1.0.0
 packaging==24.2
+passlib==1.7.4
 pathspec==0.12.1
 platformdirs==4.3.6
 pluggy==1.5.0
+pretty-errors==1.2.25
 pydantic==2.10.6
 pydantic_core==2.27.2
 pytest==8.3.4
