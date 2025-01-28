@@ -35,7 +35,7 @@ jobs:
       - name: Run tests with pytest
         run: |
           source .venv/bin/activate
-          pytest --maxfail=1 --disable-warnings --cov=app --cov-report=xml
+          pytest tests
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v4
