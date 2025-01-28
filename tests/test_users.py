@@ -31,19 +31,27 @@ def override_get_db():
         db.close()
 
 
-# Créer la base de test
 Base.metadata.create_all(bind=engine)
 
 
-def test_read_user(db_session):
-    # Ajouter un utilisateur test
-    new_user = User(username="testuser", password="1234")
-    db_session.add(new_user)
-    db_session.commit()
-    db_session.refresh(new_user)
+def test_user_registration(db_session):
+    response = client.post(
+        "/api/users/register",
+        json={
+            "username": "testuser",
+            "password": "1234",
+            "email": "testemaillol@mail.com",
+        },
+    )
 
-    # Tester la route GET /api/users/{user_id}
-    response = client.get(f"/api/users/{new_user.id}")
+    assert response.status_code == 201
+    data = response.json()
 
-    assert response.status_code == 200
-    assert response.json() == {"id": new_user.id, "username": "testuser"}
+    assert data["username"] == "testuser"
+    assert data["email"] == "testemaillol@mail.com"
+    assert "id" in data
+
+    user = db_session.query(User).filter(User.email == "testemaillol@mail.com").first()
+    assert user is not None
+    assert user.username == "testuser"
+    assert user.email == "testemaillol@mail.com"
