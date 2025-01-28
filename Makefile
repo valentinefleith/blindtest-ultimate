@@ -1,46 +1,60 @@
-VENV = .venv
-UV = uv
-PYTHON = $(VENV)/bin/python
-PIP = $(VENV)/bin/pip
+RED    = \033[31m
+GREEN  = \033[32m
+YELLOW = \033[33m
+BLUE   = \033[34m
+CYAN   = \033[36m
+RESET  = \033[0m
 
-setup:
-	@echo "Installing dependencies..."
-	$(UV) venv $(VENV)
-	$(VENV)/bin/activate && $(UV) pip install -r requirements.txt
-	@echo "Installation complete!"
+VENV = .venv
+PYTHON = python3
+PIP = $(VENV)/bin/pip
+BLACK = $(VENV)/bin/black
+RUFF = $(VENV)/bin/ruff
+PYTEST = $(VENV)/bin/pytest
+TESTS_DIR = tests
+
+$(VENV): 
+	@echo "$(CYAN)Setting up virtual environment...$(RESET)"
+	$(PYTHON) -m venv $(VENV)
+	$(PIP) install --upgrade pip
+	$(PIP) install -r requirements.txt
+	@echo "$(GREEN)✅ Setup complete!$(RESET)"
+
+setup: $(VENV)
 
 clean:
-	@echo "Removing virtual environment..."
+	@echo "$(YELLOW)🧹 Removing virtual environment...$(RESET)"
 	@rm -rf $(VENV)
-	@echo "Virtual environment removed!"
+	@echo "$(GREEN)✅ Virtual environment removed!$(RESET)"
 
-run:
-	@echo "Starting FastAPI server..."
-	$(PYTHON) -m uvicorn app.main:app --reload
+run: $(VENV)
+	@echo "$(BLUE)Starting FastAPI server...$(RESET)"
+	$(VENV)/bin/python -m uvicorn app.main:app --reload
 
-format:
-	@echo "🎨 Formatting code with Black..."
-	$(VENV)/bin/black .
+format: $(VENV)
+	@echo "$(CYAN)🎨 Formatting code with Black...$(RESET)"
+	$(BLACK) .
 
-lint:
-	@echo "🔍 Running Ruff lint..."
-	$(VENV)/bin/ruff check .
+lint: $(VENV)
+	@echo "$(CYAN)Running Ruff lint...$(RESET)"
+	$(RUFF) check .
 
-test:
-	@echo "Running tests with pytest..."
-	$(VENV)/bin/pytest --maxfail=1 --disable-warnings --cov=app --cov-report=term-missing
+test: $(VENV)
+	@echo "$(CYAN)Running tests with pytest...$(RESET)"
+	$(PYTEST) $(TESTS_DIR) --maxfail=1 --disable-warnings
 
 check: format lint test
-	@echo "✅ Code is ready to commit!"
+	@echo "$(GREEN)✅ Code is ready to commit!$(RESET)"
 
 help:
-	@echo "Available commands:"
-	@echo "  make install      -> Install dependencies in a virtualenv"
-	@echo "  make clean        -> Remove the virtualenv"
-	@echo "  make run          -> Start the FastAPI server"
-	@echo "  make format       -> Format the code with Black"
-	@echo "  make lint         -> Lint the code with Ruff"
-	@echo "  make test         -> Run tests with pytest"
-	@echo "  make check        -> Run all checks (format, lint, type-check, test, security, bandit)"
+	@echo "$(YELLOW)Available commands:$(RESET)"
+	@echo "  $(GREEN)make setup      $(RESET) -> Install dependencies in a virtualenv (only if not existing)"
+	@echo "  $(GREEN)make clean      $(RESET) -> Remove the virtualenv"
+	@echo "  $(GREEN)make run        $(RESET) -> Start the FastAPI server"
+	@echo "  $(GREEN)make format     $(RESET) -> Format the code with Black"
+	@echo "  $(GREEN)make lint       $(RESET) -> Lint the code with Ruff"
+	@echo "  $(GREEN)make test       $(RESET) -> Run tests with pytest"
+	@echo "  $(GREEN)make check      $(RESET) -> Run all checks (format, lint, test)"
 
-.PHONY: install clean run format lint type-check test security bandit check help
+# Définition des .PHONY à la fin
+.PHONY: setup clean run format lint test check help
