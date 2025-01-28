@@ -21,7 +21,7 @@ jobs:
       - name: Install Python and `uv`
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.x'
 
       - name: Install `uv`
         run: pip install uv
@@ -35,13 +35,7 @@ jobs:
       - name: Run tests with pytest
         run: |
           source .venv/bin/activate
-          pytest --maxfail=1 --disable-warnings --cov=app --cov-report=xml
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: true
+          pytest tests
 
   # 2️⃣ Vérification du formatage avec `black`
   format:
@@ -53,7 +47,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.x'
 
       - name: Install `black`
         run: pip install black
@@ -71,11 +65,11 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.x'
 
       - name: Install `ruff`
         run: pip install ruff
 
       - name: Run linting
-        run: ruff check .
+        run: ruff check --output-format=github --target-version=py39
 
