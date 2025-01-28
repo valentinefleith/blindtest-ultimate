@@ -1,20 +1,12 @@
 from fastapi import APIRouter
 from fastapi import Depends, status
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
+from app.database import get_db
 from app.models import User
 from app.schemas import UserCreate, UserResponse
-from app.auth import hash_password
+from app.utils import hash_password
 
 router = APIRouter()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.post(
