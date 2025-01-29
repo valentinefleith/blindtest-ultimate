@@ -12,5 +12,7 @@
 
     <button type="submit">S'inscrire</button>
   </form>
-  <p>{{ message }}</p>
+
+  <p class="success-message" *ngIf="message">{{ message }}</p>
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p> <!-- 👈 Affichage de l'erreur -->
 </div>
