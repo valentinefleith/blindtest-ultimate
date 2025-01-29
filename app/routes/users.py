@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi import Depends, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import User
+from app.models import User, Playlist
 from app.schemas import UserCreate, UserResponse
 from app.utils import hash_password
 from app.routes.auth import get_curr_user
@@ -33,6 +33,11 @@ def create_users(user: UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
+    new_playlist = Playlist(user_id=new_user.id)
+    db.add(new_playlist)
+    db.commit()
+    db.refresh(new_playlist)
 
     return {
         "id": new_user.id,

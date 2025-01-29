@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, TIMESTAMP, text
+from sqlalchemy import Column, ForeignKey, Integer, String, TIMESTAMP, text
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 
@@ -14,3 +15,35 @@ class User(Base):
         server_default=text("CURRENT_TIMESTAMP"),
         nullable=False,
     )
+
+    playlist = relationship("Playlist", back_populates="user", uselist=False)
+
+
+class Playlist(Base):
+    __tablename__ = "playlists"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    name = Column(String, default="My Playlist")
+
+    user = relationship("User", back_populates="playlist")
+    songs = relationship(
+        "PlaylistSong", back_populates="playlist", cascade="all, delete-orphan"
+    )
+
+
+class PlaylistSong(Base):
+    __tablename__ = "playlist_songs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    playlist_id = Column(
+        Integer, ForeignKey("playlists.id", ondelete="CASCADE"), nullable=False
+    )
+    deezer_track_id = Column(String, nullable=False)
+    title = Column(String, nullable=False)
+    artist = Column(String, nullable=False)
+    preview_url = Column(String, nullable=True)
+
+    playlist = relationship("Playlist", back_populates="songs")

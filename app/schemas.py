@@ -30,3 +30,19 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[str] = None
+
+
+class PlaylistSongRequest(BaseModel):
+    deezer_track_id: str
+    title: str
+    artist: str
+    preview_url: Optional[str] = None
+
+
+class PlaylistResponse(BaseModel):
+    id: int
+    user_id: int
+    name: str
+    songs: list[PlaylistSongRequest] = []
+
+    model_config = ConfigDict(from_attributes=True)
