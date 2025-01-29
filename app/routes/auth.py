@@ -13,6 +13,7 @@ router = APIRouter(tags=["Authentification"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+# TODO: hide these information lol
 SECRET_KEY = "coiffeur"
 ALGORITM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24

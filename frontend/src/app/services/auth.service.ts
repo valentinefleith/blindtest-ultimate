@@ -1,26 +1,47 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private tokenKey = 'token';
+  private isLoggedInSubject = new BehaviorSubject<boolean>(this.checkToken());
 
   constructor() {}
 
+  private checkToken(): boolean {
+    return typeof window !== 'undefined' && !!localStorage.getItem(this.tokenKey);
+  }
+
+  isLoggedIn$ = this.isLoggedInSubject.asObservable(); // 👈 Observable pour la navbar
+
   login(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(this.tokenKey, token);
+      this.isLoggedInSubject.next(true); // 🔄 Met à jour la navbar après connexion
+    }
   }
 
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(this.tokenKey);
+      this.isLoggedInSubject.next(false); // 🔄 Met à jour la navbar après déconnexion
+    }
   }
 
+  //isLoggedIn(): boolean {
+    //return !!localStorage.getItem(this.tokenKey);
+  //}
+
   isLoggedIn(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
+    return this.isLoggedInSubject.getValue(); // ✅ Permet d'obtenir l'état actuel
   }
 
   getToken(): string | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
     return localStorage.getItem(this.tokenKey);
   }
 
