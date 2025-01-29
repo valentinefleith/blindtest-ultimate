@@ -37,7 +37,7 @@ format: $(VENV)
 
 lint: $(VENV)
 	@echo "$(CYAN)Running Ruff lint...$(RESET)"
-	$(RUFF) check .
+	$(RUFF) check . --fix
 
 test: $(VENV)
 	@echo "$(CYAN)Running tests with pytest...$(RESET)"

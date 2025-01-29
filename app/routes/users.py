@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models import User
 from app.schemas import UserCreate, UserResponse
 from app.utils import hash_password
+from app.routes.auth import get_current_user
 
 router = APIRouter()
 
@@ -19,6 +20,13 @@ def create_users(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
+
+
+@router.get("/users/me")
+def get_current_user(
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
+):
+    return current_user
 
 
 @router.get("/users/{user_id}")
