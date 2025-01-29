@@ -16,6 +16,7 @@ class User(Base):
         nullable=False,
     )
 
+    # Un utilisateur a UNE seule playlist
     playlist = relationship("Playlist", back_populates="user", uselist=False)
 
 
@@ -24,9 +25,9 @@ class Playlist(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    name = Column(String, default="My Playlist")
+    name = Column(String, default="My Playlist", nullable=False)
 
     user = relationship("User", back_populates="playlist")
     songs = relationship(
@@ -39,11 +40,15 @@ class PlaylistSong(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     playlist_id = Column(
-        Integer, ForeignKey("playlists.id", ondelete="CASCADE"), nullable=False
+        Integer,
+        ForeignKey("playlists.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
-    deezer_track_id = Column(String, nullable=False)
+    deezer_track_id = Column(Integer, nullable=False, index=True)
     title = Column(String, nullable=False)
     artist = Column(String, nullable=False)
     preview_url = Column(String, nullable=True)
+    album_cover = Column(String, nullable=True)
 
     playlist = relationship("Playlist", back_populates="songs")

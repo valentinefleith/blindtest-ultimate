@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
-from app.routes import users, auth, playlists
+from app.routes import users, auth, playlists, deezer
 
 app = FastAPI()
 
@@ -14,6 +14,7 @@ def read_root():
 app.include_router(users.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
 app.include_router(playlists.router, prefix="/api")
+app.include_router(deezer.router, prefix="/api")
 
 Base.metadata.create_all(bind=engine)
 

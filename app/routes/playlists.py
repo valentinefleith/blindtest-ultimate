@@ -3,46 +3,66 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Playlist, PlaylistSong, User
 from app.routes.users import get_current_user
-from app.schemas import PlaylistResponse, PlaylistSongRequest
+from app.schemas import PlaylistResponse, DeezerTrack
 
 router = APIRouter()
 
 
-@router.post("/playlists/", response_model=PlaylistResponse)
-def create_playlist(
+@router.get("/playlists/", response_model=PlaylistResponse)
+def get_user_playlist(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
-    """Create an empty playlist for the authenticated user"""
-    existing_playlist = (
-        db.query(Playlist).filter(Playlist.user_id == current_user.id).first()
-    )
-    if existing_playlist:
-        return existing_playlist  # Return existing playlist if already created
+    """Get the authenticated user's playlist. Creates one if it doesn't exist."""
+    playlist = db.query(Playlist).filter(Playlist.user_id == current_user.id).first()
 
-    playlist = Playlist(user_id=current_user.id)
-    db.add(playlist)
-    db.commit()
-    db.refresh(playlist)
+    if not playlist:
+        # Auto-création de la playlist si l'utilisateur n'en a pas encore
+        playlist = Playlist(user_id=current_user.id)
+        db.add(playlist)
+        db.commit()
+        db.refresh(playlist)
+
     return playlist
 
 
-@router.post("/playlists/songs/")
+@router.post("/playlists/songs/", response_model=DeezerTrack)
 def add_song_to_playlist(
-    song: PlaylistSongRequest,
+    song: DeezerTrack,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Add a song to the authenticated user's playlist"""
+    """Add a song from Deezer to the authenticated user's playlist."""
     playlist = db.query(Playlist).filter(Playlist.user_id == current_user.id).first()
-    if not playlist:
-        raise HTTPException(status_code=404, detail="Playlist not found")
 
+    # Si l'utilisateur n'a pas de playlist, on la crée automatiquement
+    if not playlist:
+        playlist = Playlist(user_id=current_user.id)
+        db.add(playlist)
+        db.commit()
+        db.refresh(playlist)
+
+    # Vérifier si la chanson existe déjà
+    existing_song = (
+        db.query(PlaylistSong)
+        .filter(
+            PlaylistSong.playlist_id == playlist.id,
+            PlaylistSong.deezer_track_id == song.deezer_track_id,
+        )
+        .first()
+    )
+    if existing_song:
+        raise HTTPException(
+            status_code=400, detail=f"'{song.title}' is already in your playlist"
+        )
+
+    # Ajout de la chanson
     new_song = PlaylistSong(
         playlist_id=playlist.id,
         deezer_track_id=song.deezer_track_id,
         title=song.title,
         artist=song.artist,
         preview_url=song.preview_url,
+        album_cover=song.album_cover,
     )
     db.add(new_song)
     db.commit()
@@ -50,32 +70,28 @@ def add_song_to_playlist(
     return new_song
 
 
-@router.get("/playlists/", response_model=PlaylistResponse)
-def get_user_playlist(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
-):
-    """Get the authenticated user's playlist"""
-    playlist = db.query(Playlist).filter(Playlist.user_id == current_user.id).first()
-    if not playlist:
-        raise HTTPException(status_code=404, detail="Playlist not found")
-    return playlist
-
-
-@router.delete("/playlists/songs/{song_id}")
+@router.delete("/playlists/songs/{deezer_track_id}")
 def remove_song_from_playlist(
-    song_id: int,
+    deezer_track_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Remove a song from the authenticated user's playlist"""
+    """Remove a song from the authenticated user's playlist using its Deezer ID."""
+    playlist = db.query(Playlist).filter(Playlist.user_id == current_user.id).first()
+    if not playlist:
+        raise HTTPException(status_code=404, detail="Playlist not found")
+
     song = (
         db.query(PlaylistSong)
-        .join(Playlist)
-        .filter(Playlist.user_id == current_user.id, PlaylistSong.id == song_id)
+        .filter(
+            PlaylistSong.playlist_id == playlist.id,
+            PlaylistSong.deezer_track_id == deezer_track_id,
+        )
         .first()
     )
     if not song:
-        raise HTTPException(status_code=404, detail="Song not found")
+        raise HTTPException(status_code=404, detail="Song not found in your playlist")
+
     db.delete(song)
     db.commit()
-    return {"message": "Song removed"}
+    return {"message": f"'{song.title}' removed from your playlist"}
