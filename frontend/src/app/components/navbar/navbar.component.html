@@ -1,0 +1,15 @@
+<nav class="navbar">
+  <a routerLink="/" class="logo">🎵 BlindTest</a>
+
+  <div class="nav-links">
+    <ng-container *ngIf="!isLoggedIn">
+      <a routerLink="/login">Connexion</a>
+      <a routerLink="/register">Inscription</a>
+    </ng-container>
+
+    <ng-container *ngIf="isLoggedIn">
+      <a routerLink="/profile">Profil</a>
+      <button (click)="logout()">Déconnexion</button>
+    </ng-container>
+  </div>
+</nav>

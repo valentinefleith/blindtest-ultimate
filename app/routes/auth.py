@@ -13,6 +13,7 @@ router = APIRouter(tags=["Authentification"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+# TODO: hide these information lol
 SECRET_KEY = "coiffeur"
 ALGORITM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
@@ -62,5 +63,7 @@ def login(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Credentials"
         )
-    access_token = create_jwt_token(data={"user_id": user.id})
+    access_token = create_jwt_token(
+        data={"user_id": user.id, "username": user.username}
+    )
     return {"access_token": access_token, "token_type": "bearer"}
