@@ -62,5 +62,5 @@ def login(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Credentials"
         )
-    access_token = create_jwt_token(data={"user_id": user.id})
+    access_token = create_jwt_token(data={"user_id": user.id, "username": user.username})
     return {"access_token": access_token, "token_type": "bearer"}

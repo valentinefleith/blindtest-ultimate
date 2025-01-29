@@ -9,7 +9,11 @@ import { Router } from '@angular/router';
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent {
-  constructor(private authService: AuthService, private router: Router) {}
+  user: any;
+
+  constructor(private authService: AuthService, private router: Router) {
+    this.user = this.authService.getUserInfo();
+  }
 
   logout() {
     this.authService.logout();
