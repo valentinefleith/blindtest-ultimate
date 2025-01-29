@@ -1,0 +1,40 @@
+<div class="playlist-container">
+  <h3>Your Playlist</h3>
+
+  <!-- 🎵 Search Bar -->
+  <div class="search-bar">
+    <input type="text" [(ngModel)]="searchQuery" (input)="searchSongs()" placeholder="Search for a song...">
+  </div>
+
+  <!-- 🎵 Search Results -->
+  <div *ngIf="searchResults.length > 0" class="search-results">
+    <h4>Search Results:</h4>
+    <div *ngFor="let song of searchResults" class="song-card">
+      <img [src]="song.albumCover" alt="Album cover" class="album-cover">
+      <div class="song-info">
+        <h4>{{ song.title }}</h4>
+        <p>{{ song.artist }}</p>
+      </div>
+      <button (click)="addSongToPlaylist(song)">➕ Add to Playlist</button>
+    </div>
+  </div>
+
+  <!-- 🎵 Playlist -->
+  <div *ngIf="playlist.length === 0" class="empty-message">
+    No songs in your playlist yet.
+  </div>
+
+  <div class="song-list">
+    <div *ngFor="let song of playlist" class="song-card">
+      <img [src]="song.albumCover" [alt]="song.title" class="album-cover">
+      <div class="song-info">
+        <h4>{{ song.title }}</h4>
+        <p>{{ song.artist }}</p>
+      </div>
+      <button (click)="playPreview(song)">
+        {{ currentlyPlaying === song.id ? '⏸️ Pause' : '▶️ Play' }}
+      </button>
+      <button (click)="removeSong(song.id)" class="remove-btn">❌</button>
+    </div>
+  </div>
+</div>

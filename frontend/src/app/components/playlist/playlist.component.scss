@@ -1,0 +1,78 @@
+.playlist-container {
+  width: 100%;
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+  text-align: center;
+}
+
+.search-bar {
+  margin-bottom: 10px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.search-results {
+  margin-top: 10px;
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.empty-message {
+  text-align: center;
+  font-style: italic;
+  color: #777;
+}
+
+.song-list {
+  margin-top: 20px;
+}
+
+.song-card {
+  display: flex;
+  align-items: center;
+  background: #f9f9f9;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.song-card:hover {
+  background: #eee;
+}
+
+.album-cover {
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.song-info {
+  flex-grow: 1;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-left: 8px;
+}
+
+.remove-btn {
+  color: red;
+}
