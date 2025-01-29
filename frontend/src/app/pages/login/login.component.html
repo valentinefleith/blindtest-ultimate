@@ -1,0 +1,13 @@
+<div class="container">
+  <h2>Connexion</h2>
+  <form (submit)="login(); $event.preventDefault();">
+    <label for="username">Nom d'utilisateur :</label>
+    <input type="username" id="username" name="username" [(ngModel)]="username" required>
+
+    <label for="password">Mot de passe :</label>
+    <input type="password" id="password" name="password" [(ngModel)]="password" required>
+
+    <button type="submit">Se connecter</button>
+  </form>
+  <p>{{ message }}</p>
+</div>

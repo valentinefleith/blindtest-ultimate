@@ -1,0 +1,26 @@
+.container {
+  text-align: center;
+  margin-top: 100px;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #ff6600;
+}
+
+p {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+a {
+  color: #ff6600;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+a:hover {
+  text-decoration: underline;
+}
