@@ -40,7 +40,7 @@ export class PlaylistComponent implements OnInit {
     this.http.get<any>(`http://localhost:8000/api/playlists/`, { headers })
       .subscribe(response => {
         console.log("Fetched playlist:", response); // ✅ Debugging log
-        this.playlist = response.songs || []; // ✅ Update playlist if available
+        this.playlist = [...response.songs]; // ✅ Update playlist if available
       }, error => {
         console.error('Error fetching playlist:', error);
       });
@@ -87,12 +87,28 @@ export class PlaylistComponent implements OnInit {
       });
   }
 
-  removeSong(songId: number): void {
-    this.http.delete(`http://localhost:8000/api/playlists/${songId}`)
+  removeSong(song: any): void {
+    if (!song || !song.deezer_track_id) {
+      console.error("❌ Error: Missing song data or ID", song);
+      return;
+    }
+
+    const headers = {
+      Authorization: `Bearer ${this.authService.getToken()}` // ✅ Include token
+    };
+
+    console.log(`🗑️ Deleting song with ID: ${song.deezer_track_id}`); // ✅ Debug log
+
+    // ✅ Immediately remove the song from the UI before sending the request
+    this.playlist = this.playlist.filter(s => s.id !== song.deezer_track_id);
+
+    this.http.delete(`http://localhost:8000/api/playlists/songs/${song.deezer_track_id}`, { headers })
       .subscribe(() => {
-        this.playlist = this.playlist.filter(song => song.id !== songId);
+        console.log("✅ Song removed successfully!");
       }, error => {
-        console.error('Error removing song:', error);
+        console.error('❌ Error removing song:', error);
+        // ❌ If there's an error, re-add the song back to the UI
+        this.playlist.push(song);
       });
   }
 
