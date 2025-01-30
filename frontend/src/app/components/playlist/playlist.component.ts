@@ -120,7 +120,7 @@ addSongToPlaylist(song: any): void {
         console.log("✅ Song removed successfully!");
 
         // ✅ Remove song from the playlist in the UI
-        this.playlist = this.playlist.filter(s => s.id !== song.deezer_track_id);
+        this.playlist = this.playlist.filter(s => s.id !== song.id);
         this.cdRef.detectChanges(); // ✅ Force UI refresh
       }, error => {
         console.error('❌ Error removing song:', error);
