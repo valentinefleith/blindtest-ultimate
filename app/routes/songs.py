@@ -23,7 +23,7 @@ def search_songs(q: str):
             "title": song["title"],
             "artist": song["artist"]["name"],
             "preview_url": song["preview"],
-            "album_cover": song["album"]["cover_medium"],
+            "album_cover": song["album"]["cover"],
         }
         for song in data
     ]

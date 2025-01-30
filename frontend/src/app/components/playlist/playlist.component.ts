@@ -8,8 +8,8 @@ interface Song {
   id: number;
   title: string;
   artist: string;
-  albumCover: string;
-  previewUrl: string;
+  album_cover: string;
+  preview_url: string;
 }
 
 @Component({
@@ -39,7 +39,6 @@ export class PlaylistComponent implements OnInit {
 
     this.http.get<any>(`http://localhost:8000/api/playlists/`, { headers })
       .subscribe(response => {
-        console.log("Fetched playlist:", response); // ✅ Debugging log
         this.playlist = [...response.songs]; // ✅ Update playlist if available
         this.cdRef.detectChanges();
       }, error => {
@@ -47,50 +46,55 @@ export class PlaylistComponent implements OnInit {
       });
   }
 
-  searchSongs(): void {
-    if (this.searchQuery.trim() === '') {
-      this.searchResults = [];
-      return;
-    }
-
-    this.http.get<Song[]>(`http://localhost:8000/api/songs/search?q=${this.searchQuery}`)
-      .subscribe(response => {
-        this.searchResults = response;
-        this.cdRef.detectChanges();
-      }, error => {
-        console.error('Error fetching search results:', error);
-      });
+searchSongs(): void {
+  if (this.searchQuery.trim() === '') {
+    this.searchResults = [];
+    return;
   }
 
-  addSongToPlaylist(song: any): void {
-    const userId = this.authService.getUserInfo()?.user_id;
-    if (!userId) return;
+  this.http.get<any[]>(`http://localhost:8000/api/songs/search?q=${this.searchQuery}`)
+    .subscribe(response => {
+      console.log("🎵 API Response:", response);
 
-    const payload = {
-      deezer_track_id: song.deezer_track_id,
-      title: song.title,
-      artist: song.artist,
-      preview_url: song.preview_url,
-      album_cover: song.album_cover,
-    };
+      this.searchResults = response.map(song => ({
+        ...song,
+        album_cover: song.album_cover
+      }));
 
-    const headers = {
-      Authorization: `Bearer ${this.authService.getToken()}` // ✅ Include token
-    };
+      console.log("🔍 Processed Search Results with Fixed URLs:", this.searchResults);
+      this.cdRef.detectChanges(); // ✅ Force UI refresh
+    }, error => {
+      console.error('❌ Error fetching search results:', error);
+    });
+}
 
-    console.log("Adding song with token:", headers); // ✅ Debug log
+addSongToPlaylist(song: any): void {
+  const userId = this.authService.getUserInfo()?.user_id;
+  if (!userId) return;
 
-    this.http.post(`http://localhost:8000/api/playlists/songs/`, payload, { headers })
-      .subscribe(() => {
-        this.playlist.push(song); // ✅ Update UI instantly
-        this.searchQuery = ''; // ✅ Clear search bar
-        this.searchResults = []; // ✅ Hide search results
-        this.cdRef.detectChanges(); // ✅ Force UI refresh
-        console.log("Song added successfully!");
-      }, error => {
-        console.error('Error adding song to playlist:', error);
-      });
-  }
+  const payload = {
+    deezer_track_id: song.deezer_track_id,
+    title: song.title,
+    artist: song.artist,
+    preview_url: song.preview_url,
+    album_cover: song.album_cover, // ✅ Use album_cover (not albumCover)
+  };
+
+  const headers = {
+    Authorization: `Bearer ${this.authService.getToken()}`
+  };
+
+  this.http.post(`http://localhost:8000/api/playlists/songs/`, payload, { headers })
+    .subscribe(() => {
+      this.playlist.push(song); // ✅ Instantly update UI
+      this.searchQuery = ''; // ✅ Clear search bar
+      this.searchResults = []; // ✅ Hide search results
+      this.cdRef.detectChanges(); // ✅ Force UI refresh
+      console.log("✅ Song added successfully!");
+    }, error => {
+      console.error('❌ Error adding song to playlist:', error);
+    });
+}
 
   removeSong(song: any): void {
     if (!song || !song.deezer_track_id) {
