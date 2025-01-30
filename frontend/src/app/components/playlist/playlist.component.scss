@@ -1,93 +1,163 @@
-.playlist-container {
-  width: 100%;
-  max-width: 500px;
-  margin: auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* General Page Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f4f4;
+  color: #222;
 }
 
-h3 {
-  text-align: center;
+/* Playlist Header */
+.playlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: white;
+  border-bottom: 2px solid #ddd;
+  font-size: 20px;
 }
 
-.search-bar {
-  margin-bottom: 10px;
+/* Search Bar with Small Dropdown */
+.search-container {
+  position: relative;
+  display: inline-block;
 }
 
-.search-bar input {
-  width: 100%;
+.search-container input {
   padding: 8px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 20px;
+  font-size: 16px;
+  background-color: white;
+  width: 250px;
 }
 
-.search-results {
-  margin-top: 10px;
-  background: #f9f9f9;
-  padding: 10px;
-  border-radius: 8px;
+/* Small Search Dropdown */
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
-.empty-message {
-  text-align: center;
-  font-style: italic;
-  color: #777;
+.search-item {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  font-size: 14px;
 }
 
+.search-item img {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  margin-right: 6px;
+}
+
+.search-item button {
+  margin-left: auto;
+  background: #5c67f2;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-item button:hover {
+  background: #4b58e2;
+}
+
+/* Playlist */
 .song-list {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
   margin-top: 20px;
 }
 
+/* Song Card */
 .song-card {
   display: flex;
   align-items: center;
-  background: #f9f9f9;
+  justify-content: space-between;
   padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  transition: 0.3s;
-}
-
-.song-card:hover {
-  background: #eee;
+  border-bottom: 1px solid #eee;
 }
 
 .album-cover {
-  width: 50px;
-  height: 50px;
-  border-radius: 5px;
-  margin-right: 10px;
+  width: 55px;
+  height: 55px;
+  border-radius: 6px;
 }
 
 .song-info {
-  flex-grow: 1;
+  flex: 1;
+  margin-left: 12px;
+  font-size: 14px;
+}
+
+/* Player Controls */
+.player-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* ✅ Fixed spacing between play, progress bar, and remove */
 }
 
 button {
-  background: none;
+  padding: 6px 12px;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 1rem;
-  margin-left: 8px;
+  font-size: 14px;
 }
 
+button:hover {
+  opacity: 0.8;
+}
+
+/* Remove Button (Aligned) */
 .remove-btn {
-  color: red;
+  background: #ff5c5c;
+  color: white;
+  margin-left: auto; /* ✅ Ensures it's properly spaced */
 }
 
+.remove-btn:hover {
+  background: #e94c4c;
+}
+
+/* Progress Bar */
+.progress-bar {
+  width: 100px;
+  height: 4px;
+  background: #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background: #5c67f2;
+  transition: width 0.2s;
+}
+
+/* Refresh Button */
 .refresh-btn {
-  background: #3498db;
+  background: #007bff;
   color: white;
   border: none;
-  padding: 8px 12px;
-  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  border-radius: 5px;
-  transition: 0.2s;
 }
 
 .refresh-btn:hover {
-  background: #2980b9;
+  background: #0056b3;
 }

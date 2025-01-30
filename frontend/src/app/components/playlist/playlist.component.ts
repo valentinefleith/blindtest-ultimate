@@ -49,6 +49,7 @@ export class PlaylistComponent implements OnInit {
 searchSongs(): void {
   if (this.searchQuery.trim() === '') {
     this.searchResults = [];
+    this.cdRef.detectChanges();
     return;
   }
 
@@ -152,6 +153,7 @@ addSongToPlaylist(song: any): void {
       .then(() => {
         this.currentlyPlaying = song.deezer_track_id;
         console.log("▶️ Now playing:", song.title);
+        this.audio.ontimeupdate = () => this.cdRef.detectChanges();
 
         // ✅ Reset button when the song ends
         this.audio.onended = () => {
@@ -166,6 +168,13 @@ addSongToPlaylist(song: any): void {
     this.cdRef.detectChanges(); // Force UI update
   }
 
+getProgress(song: any): string {
+  if (this.currentlyPlaying === song.deezer_track_id && this.audio) {
+    const progress = (this.audio.currentTime / this.audio.duration) * 100;
+    return `${progress}%`;
+  }
+  return "0%";
+}
 
   refreshPlaylist(): void {
     console.log("🔄 Refreshing playlist...");
