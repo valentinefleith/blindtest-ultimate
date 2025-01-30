@@ -1,10 +1,16 @@
-<div class="playlist-container">
+<div class="playlist-header">
   <h3>Your Playlist</h3>
+  <button (click)="refreshPlaylist()" class="refresh-btn">🔄 Refresh Playlist</button>
+</div>
+
+<div class="playlist-container">
+  <!--<h3>Your Playlist</h3>-->
 
   <!-- 🎵 Search Bar -->
   <div class="search-bar">
     <input type="text" [(ngModel)]="searchQuery" (input)="searchSongs()" placeholder="Search for a song...">
   </div>
+
 
   <!-- 🎵 Search Results -->
   <div *ngIf="searchResults.length > 0" class="search-results">
