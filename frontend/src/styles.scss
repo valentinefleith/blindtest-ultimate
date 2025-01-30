@@ -3,3 +3,19 @@ h1, h2 {
   font-family: 'Montserrat', sans-serif;
   font-weight: 700; /* Utilise la version bold */
 }
+
+/* 🌙 Global Dark Mode */
+:root {
+  --background: #1e1e2e; /* Dark background */
+  --text: #cdd6f4; /* Light text */
+  --border: #45475a; /* Subtle borders */
+  --container: #313244; /* Darker containers */
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+}

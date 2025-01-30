@@ -11,10 +11,14 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background-color: white;
-  border-bottom: 2px solid #ddd;
+  background: var(--container); /* ✅ Dark background */
+  border-bottom: 2px solid var(--border);
   font-size: 20px;
 }
+//.playlist-header {
+  //box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  //border-radius: 8px;
+//}
 
 /* Search Bar with Small Dropdown */
 .search-container {
@@ -23,12 +27,9 @@ body {
 }
 
 .search-container input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  font-size: 16px;
-  background-color: white;
-  width: 250px;
+  background-color: var(--container);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
 
 /* Small Search Dropdown */
@@ -37,8 +38,8 @@ body {
   top: 100%;
   left: 0;
   width: 100%;
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--container); /* ✅ Dark dropdown */
+  border: 1px solid var(--border);
   border-radius: 6px;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 10;
@@ -76,10 +77,11 @@ body {
 
 /* Playlist */
 .song-list {
-  background: white;
+  background: var(--container);
   border-radius: 8px;
   padding: 15px;
   margin-top: 20px;
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Song Card */
@@ -111,15 +113,17 @@ body {
 }
 
 button {
-  padding: 6px 12px;
+  background: var(--border);
+  color: var(--text);
   border: none;
+  padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  transition: all 0.2s ease-in-out;
 }
 
 button:hover {
-  opacity: 0.8;
+  background: #50506f;
 }
 
 /* Remove Button (Aligned) */

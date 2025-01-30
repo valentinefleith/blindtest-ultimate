@@ -1,11 +1,23 @@
+/* 🌙 Dark Theme Navbar */
 .navbar {
+  background: var(--container);
+  color: var(--text);
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  background: white;
-  border-bottom: 2px solid #ddd;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.navbar a {
+  color: var(--text);
+  text-decoration: none;
+  margin-right: 15px;
+  transition: 0.2s;
+}
+
+.navbar a:hover {
+  color: #89b4fa; /* ✅ Subtle blue on hover */
 }
 
 .logo {
