@@ -10,7 +10,6 @@
       </div>
     </div>
   </div>
-  <button (click)="refreshPlaylist()" class="refresh-btn">Refresh</button> <!-- ✅ Refresh button is back -->
 </div>
 
 <!-- 🎵 Playlist -->
@@ -27,7 +26,7 @@
     </div>
     <div class="player-controls">
       <button (click)="playPreview(song)">
-        {{ currentlyPlaying === song.id ? 'Pause' : 'Play' }}
+        {{ currentlyPlaying === song.deezer_track_id ? 'Pause' : 'Play' }}
       </button>
       <div class="progress-bar">
         <div class="progress" [style.width]="getProgress(song)"></div>

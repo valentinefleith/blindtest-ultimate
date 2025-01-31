@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 interface Song {
-  id: number;
+  deezer_track_id: number;
   title: string;
   artist: string;
   album_cover: string;
@@ -37,7 +37,11 @@ export class PlaylistComponent implements OnInit {
       Authorization: `Bearer ${this.authService.getToken()}` // ✅ Include token
     };
 
-    this.http.get<any>(`http://localhost:8000/api/playlists/`, { headers })
+    interface PlaylistResponse {
+      songs: Song[];
+    }
+
+    this.http.get<PlaylistResponse>(`http://localhost:8000/api/playlists/`, { headers })
       .subscribe(response => {
         this.playlist = [...response.songs]; // ✅ Update playlist if available
         this.cdRef.detectChanges();
@@ -53,7 +57,7 @@ searchSongs(): void {
     return;
   }
 
-  this.http.get<any[]>(`http://localhost:8000/api/songs/search?q=${this.searchQuery}`)
+  this.http.get<Song[]>(`http://localhost:8000/api/songs/search?q=${this.searchQuery}`)
     .subscribe(response => {
       console.log("🎵 API Response:", response);
 
@@ -69,7 +73,7 @@ searchSongs(): void {
     });
 }
 
-addSongToPlaylist(song: any): void {
+addSongToPlaylist(song: Song): void {
   const userId = this.authService.getUserInfo()?.user_id;
   if (!userId) return;
 
@@ -97,7 +101,7 @@ addSongToPlaylist(song: any): void {
     });
 }
 
-  removeSong(song: any): void {
+  removeSong(song: Song): void {
     if (!song || !song.deezer_track_id) {
       console.error("❌ Error: Missing song data or ID", song);
       return;
@@ -120,14 +124,14 @@ addSongToPlaylist(song: any): void {
         console.log("✅ Song removed successfully!");
 
         // ✅ Remove song from the playlist in the UI
-        this.playlist = this.playlist.filter(s => s.id !== song.id);
+        this.playlist = this.playlist.filter(s => s.deezer_track_id !== song.deezer_track_id);
         this.cdRef.detectChanges(); // ✅ Force UI refresh
       }, error => {
         console.error('❌ Error removing song:', error);
       });
   }
 
-  playPreview(song: any): void {
+  playPreview(song: Song): void {
     if (!song.preview_url) {
       console.error("❌ Error: Missing preview URL for song", song);
       return;
@@ -168,34 +172,11 @@ addSongToPlaylist(song: any): void {
     this.cdRef.detectChanges(); // Force UI update
   }
 
-getProgress(song: any): string {
-  if (this.currentlyPlaying === song.deezer_track_id && this.audio) {
-    const progress = (this.audio.currentTime / this.audio.duration) * 100;
-    return `${progress}%`;
-  }
-  return "0%";
-}
-
-  refreshPlaylist(): void {
-    console.log("🔄 Refreshing playlist...");
-
-    // ✅ Stop any currently playing audio
-    if (this.audio) {
-      this.audio.pause();
-      this.currentlyPlaying = null; // Reset UI state
+  getProgress(song: Song): string {
+    if (this.currentlyPlaying === song.deezer_track_id && this.audio) {
+      const progress = (this.audio.currentTime / this.audio.duration) * 100;
+      return `${progress}%`;
     }
-
-    const headers = {
-      Authorization: `Bearer ${this.authService.getToken()}`
-    };
-
-    this.http.get<any>(`http://localhost:8000/api/playlists/`, { headers })
-      .subscribe(response => {
-        console.log("✅ Playlist refreshed:", response);
-        this.playlist = [...response.songs]; // ✅ Force UI update
-        this.cdRef.detectChanges(); // ✅ Ensure UI updates
-      }, error => {
-        console.error('❌ Error refreshing playlist:', error);
-      });
+    return "0%";
   }
 }
