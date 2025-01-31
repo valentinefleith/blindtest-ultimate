@@ -1,7 +1,7 @@
 <div class="playlist-header">
-  <h2>My Playlist</h2>
+  <h2>Ma Playlist</h2>
   <div class="search-container">
-    <input type="text" [(ngModel)]="searchQuery" (input)="searchSongs()" placeholder="Search for a song...">
+    <input type="text" [(ngModel)]="searchQuery" (input)="searchSongs()" placeholder="Rechercher une chanson...">
     <div *ngIf="searchResults.length > 0 && searchQuery.trim() !== ''" class="search-dropdown">
       <div *ngFor="let song of searchResults" class="search-item">
         <img [src]="song.album_cover" alt="Album cover">
@@ -14,7 +14,7 @@
 
 <!-- 🎵 Playlist -->
 <div *ngIf="playlist.length === 0" class="empty-message">
-  No songs in your playlist yet.
+  La playlist est vide.
 </div>
 
 <div class="song-list">

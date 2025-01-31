@@ -4,12 +4,13 @@ h1, h2 {
   font-weight: 700; /* Utilise la version bold */
 }
 
-/* 🌙 Global Dark Mode */
+/* 🌙 Global Dark Theme */
 :root {
-  --background: #1e1e2e; /* Dark background */
-  --text: #cdd6f4; /* Light text */
-  --border: #45475a; /* Subtle borders */
-  --container: #313244; /* Darker containers */
+  --background: #181825; /* ✅ Background for the full page */
+  --container: #313244;  /* ✅ Darker containers */
+  --border: #45475a;
+  --text: #cdd6f4;
+  --blue: #89b4fa;
 }
 
 body {
@@ -18,4 +19,15 @@ body {
   font-family: 'Arial', sans-serif;
   margin: 0;
   padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* 🎵 Global Container (Centers Everything) */
+.app-container {
+  width: 100%;  /* ✅ Limits width of content */
+  max-width: 1300px;  /* ✅ Prevents it from becoming too wide */
+  margin: 20px auto;  /* ✅ Centers everything */
+  padding: 20px;
+  background-color: var(--background); /* ✅ Ensures main area has the same bg */
 }
