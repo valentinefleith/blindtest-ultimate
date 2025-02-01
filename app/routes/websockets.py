@@ -1,19 +1,16 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException
-from app.routes.auth import get_curr_user
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
-import secrets
-import string
+from app.services.rooms import (
+    generate_room_code,
+    authenticate_websocket,
+    remove_player_from_room,
+    broadcast_players,
+    active_rooms,
+    room_owners,
+)
 
 router = APIRouter()
-
-active_rooms = {}  # Dictionnaire des salles et joueurs connectés
-
-
-def generate_room_code(length=6):
-    """Génère un code de room aléatoire."""
-    alphabet = string.ascii_uppercase + string.digits + string.ascii_lowercase
-    return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
 @router.websocket("/ws/create")
@@ -21,20 +18,9 @@ async def create_room(websocket: WebSocket, db: Session = Depends(get_db)):
     """Crée une nouvelle room et génère un code d'accès."""
     await websocket.accept()
 
-    # ✅ Récupérer le token JWT depuis les paramètres de l'URL
-    query_params = websocket.query_params
-    token = query_params.get("token")
-
-    if not token:
-        await websocket.close(code=1008)  # Unauthorized
+    user = await authenticate_websocket(websocket, db)
+    if user is None:
         return
-
-    try:
-        user = get_curr_user(token, db)  # ✅ Vérification manuelle du token
-    except HTTPException:
-        await websocket.close(code=1008)
-        return
-
     # ✅ Génération du code de la room
     room_code = generate_room_code()
     while room_code in active_rooms:
@@ -42,6 +28,8 @@ async def create_room(websocket: WebSocket, db: Session = Depends(get_db)):
 
     # ✅ Création de la room avec le créateur dedans
     active_rooms[room_code] = {user.username: websocket}
+    room_owners[room_code] = user.username
+    # room_status[room_code] = "waiting"
 
     # ✅ Envoi du code au créateur
     await websocket.send_json({"action": "room_created", "room_code": room_code})
@@ -51,11 +39,8 @@ async def create_room(websocket: WebSocket, db: Session = Depends(get_db)):
         while True:
             data = await websocket.receive_text()
             print(f"Message recu de {user.username}: {data}")
-            # Ici, gérer les messages de la room
     except WebSocketDisconnect:
-        del active_rooms[room_code][user.username]
-        if not active_rooms[room_code]:  # Supprime la room si plus personne dedans
-            del active_rooms[room_code]
+        await remove_player_from_room(room_code, user.username)
         print(f"{user.username} a quitté la room {room_code}")
 
 
@@ -65,26 +50,22 @@ async def join_room(
 ):
     """Permet de rejoindre une room via son code."""
 
-    # ✅ Récupérer le token JWT depuis les paramètres de l'URL
-    query_params = websocket.query_params
-    token = query_params.get("token")
-
-    if not token:
-        await websocket.close(code=1008)  # Unauthorized
-        return
-
-    try:
-        user = get_curr_user(token, db)  # ✅ Vérification manuelle du token
-    except HTTPException:
-        await websocket.close(code=1008)
-        return
-
     await websocket.accept()
+    # ✅ Récupérer le token JWT depuis les paramètres de l'URL
+    user = await authenticate_websocket(websocket, db)
+    if user is None:
+        return
 
     if room_code not in active_rooms:
         await websocket.send_json({"error": "Room not found"})
         await websocket.close()
         return
+
+    # Decommenter pour bloquer la room une fois la partie lancee
+    # if room_status.get(room_code) == "started":
+    #     await websocket.send_json({"error": "The game has already started"})
+    #     await websocket.close()
+    #     return
 
     if user.username in active_rooms[room_code]:
         await websocket.send_json({"error": "You are already in this room"})
@@ -92,32 +73,51 @@ async def join_room(
         return
 
     active_rooms[room_code][user.username] = websocket
-
-    # Notifier tout le monde
-    for player_ws in active_rooms[room_code].values():
-        await player_ws.send_json(
-            {"action": "player_joined", "username": user.username}
-        )
-
+    await broadcast_players(room_code)
     print(f"{user.username} a rejoint la room {room_code}")
 
+    # Notifier tout le monde
+    # for player_ws in active_rooms[room_code].values():
+    #     await player_ws.send_json(
+    #         {"action": "player_joined", "username": user.username}
+    #     )
     try:
         while True:
             data = await websocket.receive_text()
             print(f"Message recu de {user.username}: {data}")
     except WebSocketDisconnect:
-        if room_code in active_rooms and user.username in active_rooms[room_code]:
-            del active_rooms[room_code][user.username]
-        if not active_rooms[room_code]:
-            del active_rooms[room_code]
+        await remove_player_from_room(room_code, user.username)
         print(f"{user.username} a quitté la room {room_code}")
 
 
-async def broadcast_players(room_id: str):
-    """Envoie la liste des joueurs connectés à toute la salle"""
-    if room_id in active_rooms:
-        players = list(active_rooms[room_id].keys())
-        message = {"type": "players", "players": players}
+@router.websocket("/ws/start/{room_code}")
+async def start_game(
+    websocket: WebSocket, room_code: str, db: Session = Depends(get_db)
+):
+    """Permet au chef de la room de démarrer la partie."""
+    await websocket.accept()
 
-        for player_ws in active_rooms[room_id].values():
-            await player_ws.send_json(message)
+    user = await authenticate_websocket(websocket, db)
+    if user is None:
+        return
+
+    # ✅ Vérifier que la room existe
+    if room_code not in active_rooms:
+        await websocket.send_json({"error": "Room not found"})
+        await websocket.close()
+        return
+
+    # ✅ Vérifier que l'utilisateur est le chef de la room
+    if room_owners.get(room_code) != user.username:
+        await websocket.send_json({"error": "Only the room owner can start the game"})
+        await websocket.close()
+        return
+
+    # room_status[room_code] = "started"
+
+    # ✅ Notifier tous les joueurs que la partie commence
+    start_message = {"action": "game_started", "message": "The game has started!"}
+    for player_ws in active_rooms[room_code].values():
+        await player_ws.send_json(start_message)
+
+    print(f"🎮 La partie a commencé dans la room {room_code} par {user.username}")
