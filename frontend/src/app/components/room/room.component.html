@@ -1,0 +1,20 @@
+<div class="room-container">
+  <h2>Room Code: <strong>{{ roomCode }}</strong></h2>
+
+  <!-- ✅ Show list of players -->
+  <div *ngIf="players.length > 0">
+    <h3>Connected Players:</h3>
+    <ul>
+      <li *ngFor="let player of players">{{ player }}</li>
+    </ul>
+  </div>
+
+  <!-- ✅ Show "Start Game" button for owner -->
+  <button *ngIf="isOwner && !gameStarted" (click)="startGame()">Start Game</button>
+
+  <!-- ✅ Show game status -->
+  <p *ngIf="gameStarted">The game has started!</p>
+
+  <!-- ✅ Disconnect button -->
+  <button (click)="disconnect()">Quit Game</button>
+</div>
