@@ -1,10 +1,17 @@
 <div class="container">
   <h1>🚧 En construction 🚧</h1>
   <p>Le site est en cours de développement. Revenez bientôt !</p>
-  <!---<a routerLink="/register">Créer un compte</a> | <a routerLink="/login">Se connecter</a>-->
+
   <ng-container *ngIf="!isLoggedIn">
-    <a [routerLink]="['/register']">Créer un compte</a> | <a [routerLink]="['/login']">Se connecter</a>
+    <a [routerLink]="['/register']">Créer un compte</a> |
+    <a [routerLink]="['/login']">Se connecter</a>
   </ng-container>
-  <!--<button (click)="goToRegister()">Créer un compte</button>-->
-  <!--<button (click)="goToLogin()">Se connecter</button>-->
+
+  <ng-container *ngIf="isLoggedIn">
+    <button (click)="createRoom()">Create Room</button>
+
+    <!-- ✅ Add input for Room Code -->
+    <input type="text" [(ngModel)]="roomCode" placeholder="Enter Room Code">
+    <button (click)="joinRoom()">Join Room</button>
+  </ng-container>
 </div>
