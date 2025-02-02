@@ -43,13 +43,27 @@ export class HomeComponent implements OnInit {
     this.wsService.sendMessage({ action: 'create_room' });
   }
 
+
   joinRoom(): void {
     if (this.roomCode.trim() === '') {
       alert("Please enter a valid room code!");
       return;
     }
 
-    console.log("🔗 Joining Room:", this.roomCode);
-    this.router.navigate([`/room/${this.roomCode}`]); // ✅ Redirect to the room page
+    // ✅ Check if the room exists before navigating
+    fetch(`http://localhost:8000/api/rooms/exists/${this.roomCode}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Room not found");
+        }
+        return response.json();
+      })
+      .then(() => {
+        console.log("✅ Room exists! Redirecting...");
+        this.router.navigate([`/room/${this.roomCode}`]); // ✅ Only navigate if room exists
+      })
+      .catch(() => {
+        alert("❌ This room does not exist!");
+      });
   }
 }

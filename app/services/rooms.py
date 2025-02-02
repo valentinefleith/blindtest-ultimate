@@ -1,6 +1,6 @@
 import secrets
 import string
-from fastapi import WebSocket, HTTPException
+from fastapi import WebSocket, HTTPException, APIRouter
 from app.routes.auth import get_curr_user
 from sqlalchemy.orm import Session
 
@@ -8,6 +8,24 @@ from sqlalchemy.orm import Session
 active_rooms = {}  # Room ID -> {username: websocket}
 room_owners = {}  # Room ID -> owner_username
 # room_status = {}   # Room ID -> "waiting" | "started"
+
+router = APIRouter()
+
+
+@router.get("/rooms/exists/{room_code}")
+def check_room_exists(room_code: str):
+    """Check if a room exists before allowing a user to join."""
+    print(f"🔍 Checking if room exists: {room_code}")  # Debugging
+
+    # Print all current rooms
+    print(f"📋 Active Rooms: {list(active_rooms.keys())}")
+
+    if room_code in active_rooms:
+        print(f"✅ Room {room_code} exists!")
+        return {"exists": True}
+
+    print(f"❌ Room {room_code} not found!")
+    raise HTTPException(status_code=404, detail="Room not found")
 
 
 def generate_room_code(length=6):
